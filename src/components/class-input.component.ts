@@ -194,7 +194,7 @@ export class ClassInputComponent {
         }
     } catch (err) {
         console.error(err);
-        this.aiError.set('Failed to generate schedule. Please try again or fill manually.');
+        this.aiError.set('Failed to generate schedule. Check API Key or try again.');
     } finally {
         this.isProcessing.set(false);
     }
