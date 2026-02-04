@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { addDays, isWeekend, format, isSameDay } from 'date-fns';
 
 export type DayType = 'School' | 'Holiday' | 'PD' | 'Exam';
 export type CycleMode = 'shift' | 'skip'; // Shift: Resume cycle; Skip: Holiday consumes cycle day
@@ -23,6 +24,11 @@ export interface GeneratedDay {
   classes: ClassInfo[]; // Calculated classes for this day
 }
 
+function parseLocalYMD(dateStr: string): Date {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -30,8 +36,9 @@ export class SchedulerService {
   // Configuration
   cycleLength = signal<number>(6);
   periodsPerDay = signal<number>(5);
-  startDate = signal<string>(new Date().toISOString().split('T')[0]);
-  endDate = signal<string>(new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]);
+  // Initialize with local date string to avoid timezone confusion
+  startDate = signal<string>(format(new Date(), 'yyyy-MM-dd'));
+  endDate = signal<string>(format(addDays(new Date(), 365), 'yyyy-MM-dd'));
   cycleMode = signal<CycleMode>('shift');
   startCycleDay = signal<number>(1);
   
@@ -141,8 +148,10 @@ export class SchedulerService {
 
   // The Big Calculation
   generatedSchedule = computed(() => {
-    const start = new Date(this.startDate());
-    const end = new Date(this.endDate());
+    // Parse using local helper to ensure local time consistency
+    const start = parseLocalYMD(this.startDate());
+    const end = parseLocalYMD(this.endDate());
+    
     const days: GeneratedDay[] = [];
     const exceptions = this.exceptions();
     const cycleLen = this.cycleLength();
@@ -151,20 +160,19 @@ export class SchedulerService {
 
     // Use the configured start cycle day
     let currentCycleDay = this.startCycleDay();
-    const currDate = new Date(start);
+    let currDate = start;
 
     // Safety break
     let loopCount = 0;
     while (currDate <= end && loopCount < 1000) {
       loopCount++;
-      const dateStr = currDate.toISOString().split('T')[0];
-      const dayOfWeek = currDate.getDay(); // 0=Sun, 6=Sat
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const dateStr = format(currDate, 'yyyy-MM-dd');
+      const isWknd = isWeekend(currDate);
       
       let type: DayType = 'School';
       if (exceptions.has(dateStr)) {
         type = exceptions.get(dateStr)!;
-      } else if (isWeekend) {
+      } else if (isWknd) {
         // Automatically treat weekends as non-school days
       }
 
@@ -174,26 +182,26 @@ export class SchedulerService {
       if (overrides.has(dateStr)) {
         assignedCycle = overrides.get(dateStr)!;
         // Adjust the running counter based on the override if it's a School day to keep sequence logical
-        if (type === 'School' && !isWeekend) {
+        if (type === 'School' && !isWknd) {
              currentCycleDay = (assignedCycle % cycleLen) + 1; 
         }
       } else {
         // Logic for School Days
-        if (!isWeekend && type === 'School') {
+        if (!isWknd && type === 'School') {
           assignedCycle = currentCycleDay;
           
           // Increment for next time
           currentCycleDay = (currentCycleDay % cycleLen) + 1;
         } else {
           // It's a weekend or exception
-          if (mode === 'skip' && !isWeekend) {
+          if (mode === 'skip' && !isWknd) {
             // "Skip" means the cycle continues in background
             currentCycleDay = (currentCycleDay % cycleLen) + 1;
           }
         }
       }
 
-      if (!isWeekend || type !== 'School') {
+      if (!isWknd || type !== 'School') {
           // Resolve classes if cycle day exists
           const classes: ClassInfo[] = [];
           if (assignedCycle !== null) {
@@ -202,7 +210,7 @@ export class SchedulerService {
               }
           }
 
-          if (!isWeekend) { // Only add weekdays to the list to keep it clean
+          if (!isWknd) { // Only add weekdays to the list to keep it clean
             days.push({
                 date: new Date(currDate),
                 dateStr,
@@ -214,7 +222,7 @@ export class SchedulerService {
           }
       }
       
-      currDate.setDate(currDate.getDate() + 1);
+      currDate = addDays(currDate, 1);
     }
     return days;
   });
