@@ -1,0 +1,5 @@
+{
+  "name": "Cycle Schedule Master",
+  "description": "A comprehensive tool for teachers to manage rotating cycle schedules, handle holidays, and export to Google Calendar.",
+  "requestFramePermissions": []
+}
