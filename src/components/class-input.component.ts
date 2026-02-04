@@ -136,7 +136,7 @@ export class ClassInputComponent {
     this.aiError.set('');
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env['API_KEY'] });
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         
         const systemInstruction = `
             You are a JSON generator for a school schedule. 
