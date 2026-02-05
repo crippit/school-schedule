@@ -1,7 +1,7 @@
 import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SchedulerService, DayType } from '../services/scheduler.service';
-import { format, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isSameDay, addMonths, isWeekend } from 'date-fns';
+import { format, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, isWeekend } from 'date-fns';
 
 @Component({
   selector: 'app-calendar-mgr',

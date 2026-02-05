@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { addDays, isWeekend, format, isSameDay } from 'date-fns';
+import { addDays, isWeekend, format } from 'date-fns';
 
 export type DayType = 'School' | 'Holiday' | 'PD' | 'Exam';
 export type CycleMode = 'shift' | 'skip'; // Shift: Resume cycle; Skip: Holiday consumes cycle day
