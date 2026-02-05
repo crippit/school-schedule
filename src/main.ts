@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import 'zone.js';
+import '@angular/compiler';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
