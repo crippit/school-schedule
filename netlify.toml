@@ -1,6 +1,13 @@
 [build]
   command = "npm run build"
-  publish = "dist"
+  # This is the standard path for AnalogJS standalone projects
+  publish = "dist/analog/public"
 
 [dev]
   command = "npm run dev"
+
+# This prevents 404 errors when you refresh the page on a sub-route
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
