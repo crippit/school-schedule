@@ -136,7 +136,8 @@ export class ClassInputComponent {
     this.aiError.set('');
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env['API_KEY'] });
+        const apiKey = import.meta.env.VITE_API_KEY || '';
+        const ai = new GoogleGenAI({ apiKey });
         
         const systemInstruction = `
             You are a JSON generator for a school schedule. 
@@ -183,7 +184,8 @@ export class ClassInputComponent {
             }
         });
 
-        const json = JSON.parse(response.text);
+        // Use nullish coalescing to safely handle undefined response.text
+        const json = JSON.parse(response.text ?? '{}');
         if (json.classes && Array.isArray(json.classes)) {
             const updates = json.classes.map((c: any) => ({
                 day: c.cycleDay,
@@ -194,7 +196,7 @@ export class ClassInputComponent {
         }
     } catch (err) {
         console.error(err);
-        this.aiError.set('Failed to generate schedule. Please try again or fill manually.');
+        this.aiError.set('Failed to generate schedule. Check API Key or try again.');
     } finally {
         this.isProcessing.set(false);
     }

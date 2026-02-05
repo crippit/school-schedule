@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SchedulerService, GeneratedDay, ClassInfo } from '../services/scheduler.service';
+import { SchedulerService, ClassInfo } from '../services/scheduler.service';
 import saveAs from 'file-saver';
 
 @Component({
