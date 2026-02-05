@@ -9,5 +9,6 @@ export const routes: Routes = [
   { path: 'setup', component: SetupComponent, title: 'Setup' },
   { path: 'classes', component: ClassInputComponent, title: 'Classes' },
   { path: 'calendar', component: CalendarComponent, title: 'Calendar' },
-  { path: 'review', component: ReviewComponent, title: 'Review' }
+  { path: 'review', component: ReviewComponent, title: 'Review' },
+  { path: '**', redirectTo: 'setup' }
 ];
