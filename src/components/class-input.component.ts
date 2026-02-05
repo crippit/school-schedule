@@ -1,5 +1,5 @@
-// FIX: Added reference to node types to use process.env without TypeScript errors.
-/// <reference types="node" />
+// FIX: Declare `process` as a global to use process.env without TypeScript errors.
+declare const process: any;
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
