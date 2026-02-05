@@ -1,13 +1,15 @@
-import { Component, inject } from '@angular/core';
+// FIX: Add ChangeDetectionStrategy for OnPush.
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, Router, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  // FIX: Add ChangeDetectionStrategy.OnPush for performance benefits.
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="min-h-screen bg-slate-50 font-sans pb-20">
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans pb-20">
       <!-- Header -->
       <header class="bg-indigo-600 text-white shadow-lg sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -37,12 +39,15 @@ import { RouterOutlet, RouterLink, Router, RouterLinkActive } from '@angular/rou
                         [class.border-white]="isActive(step.path)"
                         [class.border-indigo-400]="!isActive(step.path)"
                         [class.text-indigo-200]="!isActive(step.path)"
+                        [class.dark:border-indigo-500]="!isActive(step.path)"
+                        [class.dark:text-indigo-300]="!isActive(step.path)"
                    >
                         {{ i + 1 }}
                     </div>
                     <span class="text-sm font-medium" 
                           [class.text-white]="isActive(step.path)"
-                          [class.text-indigo-200]="!isActive(step.path)">
+                          [class.text-indigo-200]="!isActive(step.path)"
+                          [class.dark:text-indigo-200]="!isActive(step.path)">
                           {{ step.label }}
                     </span>
                     @if(i < steps.length - 1) {
@@ -60,12 +65,12 @@ import { RouterOutlet, RouterLink, Router, RouterLinkActive } from '@angular/rou
       </main>
 
       <!-- Footer Navigation -->
-      <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      <footer class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
           <button 
              (click)="prev()"
              [disabled]="isFirstStep()"
-             class="px-6 py-2 rounded-lg text-slate-600 font-medium hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+             class="px-6 py-2 rounded-lg text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
              Back
           </button>
           
@@ -77,7 +82,7 @@ import { RouterOutlet, RouterLink, Router, RouterLinkActive } from '@angular/rou
                 Next: {{ getNextLabel() }}
                 </button>
              } @else {
-                <div class="text-sm text-slate-500 font-medium flex items-center gap-2">
+                <div class="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2">
                     <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     Ready to Export
                 </div>

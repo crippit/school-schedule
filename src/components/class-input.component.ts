@@ -1,4 +1,6 @@
-import { Component, inject, signal, computed } from '@angular/core';
+// FIX: Added reference to node types to use process.env without TypeScript errors.
+/// <reference types="node" />
+import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SchedulerService, ClassInfo } from '../services/scheduler.service';
@@ -6,8 +8,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 @Component({
   selector: 'app-class-input',
-  standalone: true,
   imports: [CommonModule, FormsModule],
+  // FIX: Added ChangeDetectionStrategy.OnPush for performance benefits.
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="max-w-6xl mx-auto space-y-6">
       <!-- AI Assistant -->
@@ -26,7 +29,7 @@ import { GoogleGenAI, Type } from "@google/genai";
           <textarea 
             [(ngModel)]="aiPrompt" 
             placeholder="Paste text here..." 
-            class="w-full text-slate-800 p-3 rounded-lg focus:ring-2 focus:ring-indigo-300 border-none h-24 text-sm"
+            class="w-full text-slate-800 dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400 p-3 rounded-lg focus:ring-2 focus:ring-indigo-300 border-none h-24 text-sm"
           ></textarea>
           <button 
             (click)="runSmartFill()" 
@@ -47,39 +50,39 @@ import { GoogleGenAI, Type } from "@google/genai";
       </div>
 
       <!-- Main Grid -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-slate-200">
-            <thead class="bg-slate-50">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-700">
               <tr>
-                <th class="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider sticky left-0 bg-slate-50 z-10 w-24">
+                <th class="px-3 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider sticky left-0 bg-slate-50 dark:bg-slate-700 z-10 w-24">
                   Period
                 </th>
                 @for (day of daysArray(); track $index) {
-                  <th class="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider min-w-[200px]">
+                  <th class="px-3 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider min-w-[200px]">
                     Cycle Day {{ $index + 1 }}
                   </th>
                 }
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-slate-200">
+            <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
               @for (period of sched.bellSchedule(); track pIndex; let pIndex = $index) {
                 <tr>
-                  <td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-slate-900 sticky left-0 bg-white z-10 border-r border-slate-100">
+                  <td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-slate-100 sticky left-0 bg-white dark:bg-slate-800 z-10 border-r border-slate-100 dark:border-slate-700">
                     <div class="flex flex-col">
                       <span>Period {{ pIndex + 1 }}</span>
-                      <span class="text-xs text-slate-400 font-normal">{{ period.start }} - {{ period.end }}</span>
+                      <span class="text-xs text-slate-400 dark:text-slate-500 font-normal">{{ period.start }} - {{ period.end }}</span>
                     </div>
                   </td>
                   @for (day of daysArray(); track dIndex; let dIndex = $index) {
-                    <td class="px-2 py-2 align-top border-r border-slate-50 last:border-none">
-                      <div class="space-y-2 bg-slate-50 p-2 rounded-lg border border-slate-100 hover:border-indigo-200 transition-colors">
+                    <td class="px-2 py-2 align-top border-r border-slate-50 dark:border-slate-700/50 last:border-none">
+                      <div class="space-y-2 bg-slate-50 dark:bg-slate-700/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-500 transition-colors">
                         <input 
                           type="text" 
                           [value]="sched.getClass(dIndex + 1, pIndex).name"
                           (input)="update(dIndex + 1, pIndex, 'name', $event)"
                           placeholder="Class Name" 
-                          class="block w-full text-sm font-medium text-slate-900 bg-transparent border-0 border-b border-slate-200 focus:border-indigo-500 focus:ring-0 px-0 placeholder-slate-400"
+                          class="block w-full text-sm font-medium text-slate-900 dark:text-slate-100 bg-transparent border-0 border-b border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:ring-0 px-0 placeholder-slate-400 dark:placeholder-slate-500"
                         />
                         <div class="flex gap-2">
                             <input 
@@ -88,14 +91,14 @@ import { GoogleGenAI, Type } from "@google/genai";
                             [value]="sched.getClass(dIndex + 1, pIndex).room"
                             (input)="update(dIndex + 1, pIndex, 'room', $event)"
                             placeholder="Room" 
-                            class="block w-1/3 text-xs text-slate-600 bg-transparent border-0 focus:ring-0 px-0 placeholder-slate-400"
+                            class="block w-1/3 text-xs text-slate-600 dark:text-slate-300 bg-transparent border-0 focus:ring-0 px-0 placeholder-slate-400 dark:placeholder-slate-500"
                             />
                             <input 
                             type="text" 
                             [value]="sched.getClass(dIndex + 1, pIndex).note"
                             (input)="update(dIndex + 1, pIndex, 'note', $event)"
                             placeholder="Note" 
-                            class="block w-2/3 text-xs text-slate-600 bg-transparent border-0 focus:ring-0 px-0 placeholder-slate-400 text-right"
+                            class="block w-2/3 text-xs text-slate-600 dark:text-slate-300 bg-transparent border-0 focus:ring-0 px-0 placeholder-slate-400 dark:placeholder-slate-500 text-right"
                             />
                         </div>
                       </div>
@@ -136,8 +139,9 @@ export class ClassInputComponent {
     this.aiError.set('');
 
     try {
-        const apiKey = import.meta.env.VITE_API_KEY || '';
-        const ai = new GoogleGenAI({ apiKey });
+        // FIX: Replaced Vite-specific environment variables with process.env as per the Gemini API guidelines to resolve the error.
+        // The non-null assertion (!) is used because the environment is expected to provide the API key.
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
         
         const systemInstruction = `
             You are a JSON generator for a school schedule. 
@@ -184,8 +188,8 @@ export class ClassInputComponent {
             }
         });
 
-        // Use nullish coalescing to safely handle undefined response.text
-        const json = JSON.parse(response.text ?? '{}');
+        // FIX: response.text is guaranteed to be a JSON string when responseMimeType is "application/json".
+        const json = JSON.parse(response.text);
         if (json.classes && Array.isArray(json.classes)) {
             const updates = json.classes.map((c: any) => ({
                 day: c.cycleDay,

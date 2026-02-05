@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+// FIX: Add ChangeDetectionStrategy for OnPush.
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SchedulerService, ClassInfo } from '../services/scheduler.service';
@@ -6,15 +7,16 @@ import saveAs from 'file-saver';
 
 @Component({
   selector: 'app-review',
-  standalone: true,
   imports: [CommonModule, FormsModule],
+  // FIX: Add ChangeDetectionStrategy.OnPush for performance benefits.
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="max-w-4xl mx-auto space-y-6">
       
-      <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 sticky top-0 z-20">
+      <div class="flex justify-between items-center bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 sticky top-0 z-20">
         <div>
-          <h2 class="text-xl font-bold text-slate-800">Final Review</h2>
-          <p class="text-sm text-slate-500">Check cycle numbers and export</p>
+          <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">Final Review</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Check cycle numbers and export</p>
         </div>
         <button (click)="exportICS()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 shadow-sm transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -24,20 +26,20 @@ import saveAs from 'file-saver';
         </button>
       </div>
 
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+          <thead class="bg-slate-50 dark:bg-slate-700">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Type</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Cycle Day</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Classes</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cycle Day</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Classes</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-slate-200">
+          <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
             @for (day of sched.generatedSchedule(); track day.dateStr) {
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-slate-100">
                   {{ day.date | date:'EEE, MMM d' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -50,15 +52,15 @@ import saveAs from 'file-saver';
                      {{ day.type }}
                    </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                    @if (day.type === 'School') {
                      <div class="flex items-center gap-2">
-                       <span class="text-slate-400 text-xs">Day</span>
+                       <span class="text-slate-400 dark:text-slate-500 text-xs">Day</span>
                        <input 
                          type="number" 
                          [value]="day.cycleDay" 
                          (input)="override(day.dateStr, $event)"
-                         class="w-16 p-1 text-sm border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500"
+                         class="w-16 p-1 text-sm border border-slate-300 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 rounded focus:ring-indigo-500 focus:border-indigo-500"
                        />
                        @if(day.overrideCycleDay) {
                          <button (click)="clearOverride(day.dateStr)" class="text-xs text-red-500 hover:text-red-700" title="Reset to auto">
@@ -67,19 +69,19 @@ import saveAs from 'file-saver';
                        }
                      </div>
                    } @else {
-                     <span class="text-slate-300">-</span>
+                     <span class="text-slate-300 dark:text-slate-600">-</span>
                    }
                 </td>
-                <td class="px-6 py-4 text-sm text-slate-500">
+                <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
                    @if (day.classes.length > 0) {
                      <div class="flex flex-col gap-1">
                         @for(cls of day.classes; track $index) {
                             @if(cls.name) {
-                                <span class="text-xs"><span class="font-semibold text-slate-700">{{ cls.name }}</span> <span class="text-slate-400">({{ cls.room }})</span></span>
+                                <span class="text-xs"><span class="font-semibold text-slate-700 dark:text-slate-200">{{ cls.name }}</span> <span class="text-slate-400 dark:text-slate-500">({{ cls.room }})</span></span>
                             }
                         }
                         @if(hasNoClasses(day.classes)) {
-                            <span class="text-slate-400 italic text-xs">No classes configured</span>
+                            <span class="text-slate-400 dark:text-slate-500 italic text-xs">No classes configured</span>
                         }
                      </div>
                    }

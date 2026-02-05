@@ -1,34 +1,36 @@
-import { Component, inject, computed, signal } from '@angular/core';
+// FIX: Add ChangeDetectionStrategy for OnPush.
+import { Component, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SchedulerService, DayType } from '../services/scheduler.service';
 import { format, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, isWeekend } from 'date-fns';
 
 @Component({
   selector: 'app-calendar-mgr',
-  standalone: true,
   imports: [CommonModule],
+  // FIX: Add ChangeDetectionStrategy.OnPush for performance benefits.
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+    <div class="max-w-4xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-slate-800">Exceptions & Holidays</h2>
+        <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">Exceptions & Holidays</h2>
         
         <div class="flex items-center gap-4">
-           <div class="flex gap-2 text-xs">
+           <div class="flex gap-2 text-xs text-slate-600 dark:text-slate-300">
               <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-100 border border-red-300"></span> Holiday</span>
               <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-blue-100 border border-blue-300"></span> PD Day</span>
               <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-100 border border-amber-300"></span> Exam</span>
            </div>
-           <div class="flex items-center bg-slate-100 rounded-lg p-1">
-             <button (click)="prevMonth()" class="p-1 hover:bg-white rounded-md shadow-sm transition-all"><svg class="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
-             <span class="px-4 font-semibold text-slate-700 w-32 text-center">{{ monthLabel() }}</span>
-             <button (click)="nextMonth()" class="p-1 hover:bg-white rounded-md shadow-sm transition-all"><svg class="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+           <div class="flex items-center bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+             <button (click)="prevMonth()" class="p-1 hover:bg-white dark:hover:bg-slate-600 rounded-md shadow-sm transition-all"><svg class="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+             <span class="px-4 font-semibold text-slate-700 dark:text-slate-200 w-32 text-center">{{ monthLabel() }}</span>
+             <button (click)="nextMonth()" class="p-1 hover:bg-white dark:hover:bg-slate-600 rounded-md shadow-sm transition-all"><svg class="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
            </div>
         </div>
       </div>
 
       <div class="grid grid-cols-7 gap-1 mb-2 text-center">
         @for(day of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; track day) {
-          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider py-2">{{ day }}</div>
+          <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider py-2">{{ day }}</div>
         }
       </div>
 
@@ -37,7 +39,7 @@ import { format, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonth
           <div 
              (click)="onDayClick(day.dateStr)"
              class="h-24 border rounded-lg p-2 cursor-pointer transition-all relative group
-             {{ day.isWeekend ? 'bg-slate-100 text-slate-400' : (!day.isCurrentMonth ? 'bg-slate-50 text-slate-300' : 'bg-white') }}
+             {{ day.isWeekend ? 'bg-slate-100 text-slate-400 dark:bg-slate-800/50 dark:text-slate-500' : (!day.isCurrentMonth ? 'bg-slate-50 text-slate-300 dark:bg-slate-900/40 dark:text-slate-600' : 'bg-white dark:bg-slate-800') }}
              {{ getStyle(day.dateStr) }}"
           >
              <div class="flex justify-between items-start">
@@ -60,14 +62,14 @@ import { format, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonth
              }
              
              <!-- Hover Action Hint -->
-             <div class="absolute inset-0 bg-slate-900/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                <span class="text-xs font-bold text-slate-600 bg-white/90 px-2 py-1 rounded shadow-sm">Click to Cycle</span>
+             <div class="absolute inset-0 bg-slate-900/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                <span class="text-xs font-bold text-slate-600 bg-white/90 dark:text-slate-200 dark:bg-slate-700/90 px-2 py-1 rounded shadow-sm">Click to Cycle</span>
              </div>
           </div>
         }
       </div>
       
-      <p class="text-center text-xs text-slate-400 mt-4">
+      <p class="text-center text-xs text-slate-400 dark:text-slate-500 mt-4">
         Click a date repeatedly to toggle between: School -> Holiday -> PD -> Exam -> School
       </p>
     </div>
@@ -117,10 +119,10 @@ export class CalendarComponent {
 
   getStyle(dateStr: string) {
     const type = this.getType(dateStr);
-    if (type === 'School') return 'hover:border-indigo-300 border-slate-100';
-    if (type === 'Holiday') return 'border-red-200 bg-red-50';
-    if (type === 'PD') return 'border-blue-200 bg-blue-50';
-    if (type === 'Exam') return 'border-amber-200 bg-amber-50';
+    if (type === 'School') return 'hover:border-indigo-300 border-slate-100 dark:hover:border-indigo-500 dark:border-slate-700';
+    if (type === 'Holiday') return 'border-red-200 bg-red-50 dark:border-red-800/30 dark:bg-red-500/10';
+    if (type === 'PD') return 'border-blue-200 bg-blue-50 dark:border-blue-800/30 dark:bg-blue-500/10';
+    if (type === 'Exam') return 'border-amber-200 bg-amber-50 dark:border-amber-800/30 dark:bg-amber-500/10';
     return '';
   }
 

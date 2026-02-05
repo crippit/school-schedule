@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+// FIX: Removed reference to vite/client to resolve type definition file error.
 import 'zone.js';
 import '@angular/compiler';
 import { bootstrapApplication } from '@angular/platform-browser';
