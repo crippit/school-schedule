@@ -183,7 +183,7 @@ export class ClassInputComponent {
             }
         });
 
-        const json = JSON.parse(response.text);
+        const json = JSON.parse(response.text ?? '{}');
         if (json.classes && Array.isArray(json.classes)) {
             const updates = json.classes.map((c: any) => ({
                 day: c.cycleDay,

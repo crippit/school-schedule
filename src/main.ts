@@ -1,9 +1,10 @@
+import 'zone.js';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideZoneChangeDetection } from '@angular/core';
 import { AppComponent } from './app.component';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideZonelessChangeDetection()
+    provideZoneChangeDetection({ eventCoalescing: true })
   ]
 }).catch(err => console.error(err));
